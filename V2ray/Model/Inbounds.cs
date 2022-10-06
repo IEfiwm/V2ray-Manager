@@ -3,6 +3,71 @@
 namespace V2ray.Model
 {
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+    public class ClientConfig
+    {
+        public Log log { get; set; }
+        public List<Inbound> inbounds { get; set; }
+        public List<Outbound> outbounds { get; set; }
+        public Dns dns { get; set; }
+        public Routing routing { get; set; }
+        public Transport transport { get; set; }
+    }
+
+    public class Dns
+    {
+        public List<string> servers { get; set; }
+    }
+
+    public class Inbound
+    {
+        public int port { get; set; }
+        public string protocol { get; set; }
+        public Settings settings { get; set; }
+        public StreamSettings streamSettings { get; set; }
+        public Sniffing sniffing { get; set; }
+    }
+
+    public class KcpSettings
+    {
+        public int uplinkCapacity { get; set; }
+        public int downlinkCapacity { get; set; }
+        public bool congestion { get; set; }
+    }
+
+    public class Log
+    {
+        public string access { get; set; }
+        public string error { get; set; }
+        public string loglevel { get; set; }
+    }
+
+    public class Outbound
+    {
+        public string protocol { get; set; }
+        public Settings settings { get; set; }
+        public string tag { get; set; }
+    }
+
+
+
+    public class Routing
+    {
+        public string domainStrategy { get; set; }
+        public List<Rule> rules { get; set; }
+    }
+
+    public class Rule
+    {
+        public string type { get; set; }
+        public List<string> ip { get; set; }
+        public string outboundTag { get; set; }
+    }
+
+    public class Transport
+    {
+        public KcpSettings kcpSettings { get; set; }
+    }
+
     public class Client
     {
         [JsonProperty("id")]

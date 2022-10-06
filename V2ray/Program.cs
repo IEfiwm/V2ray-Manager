@@ -1,6 +1,8 @@
 ﻿
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text;
+using V2ray.Base;
 using V2ray.Model;
 
 string Base64Encode(string plainText)
@@ -14,9 +16,6 @@ string Base64Decode(string base64EncodedData)
     byte[] bytes = Convert.FromBase64String(base64EncodedData);
     return Encoding.UTF8.GetString(bytes);
 }
-using Newtonsoft.Json;
-using V2ray.Base;
-using V2ray.Model;
 
 string input = string.Empty;
 
@@ -26,7 +25,7 @@ if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
 }
 try
 {
-    var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
+    var appConfiguration = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
 }
 catch (Exception e)
 {
@@ -51,7 +50,14 @@ input = Console.ReadLine();
 
 goto decide;
 
-createnewuser:
+
+updateConfig:
+return;
+
+getUsers:
+return;
+
+createNewUser:
 
 Console.Write("Type UserName: ");
 
@@ -63,28 +69,78 @@ model.CreateDate = DateTime.Now.ToString("yyyy-MM-DD");
 model.Level = 0;
 model.Id = Guid.NewGuid().ToString();
 model.UserName = input;
+
+
+
+var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
+
+config?.inbounds[0]?.settings.Clients.Add(model);
+//convert to json and add to clients VPN config
+
+using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
+{
+    JsonSerializer serializer = new JsonSerializer();
+    serializer.Serialize(file, config);
+}
+
+
+//process manager restart systemctl v2ray.service
+ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = "systemctl restart v2ray.service", };
+Process proc = new Process() { StartInfo = startInfo, };
+proc.Start();
+
+var appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
+
+foreach (var hostName in appConfig.HostNames)
+{//new user based on config
+
+    var user = new User
+    {
+        Ps = appConfig.Name,
+        Port = appConfig.Port,
+        Net = appConfig.Net,
+        Type = appConfig.Type,
+        Host = hostName,
+        Id = model.Id
+    };
+    var userJson = JsonConvert.SerializeObject(user);
+
+    //print each one
+    Console.WriteLine("\n"+ "vmess://"+Base64Encode(userJson));
+}
+
+
+
 return;
+
+
+deleteUser:
+return;
+
+manualSettings:
+return;
+
+
 decide:
 switch (Convert.ToInt32(input))
 {
     case 1:
-        break;
+        goto updateConfig;
 
     case 2:
-        break;
+        goto getUsers;
 
     case 3:
-        goto createnewuser;
-        break;
+        goto createNewUser;
 
     case 4:
-        break;
+        goto deleteUser;
 
     case 5:
-        break;
+        goto manualSettings;
 
     case 6:
-        break;
+        goto deleteUser;
 
     default:
         break;
