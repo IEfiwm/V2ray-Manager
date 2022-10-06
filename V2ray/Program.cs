@@ -64,6 +64,20 @@ using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
 
 menu:
 
+var startInfo = new ProcessStartInfo()
+{
+    CreateNoWindow = true,
+    RedirectStandardError = true,
+    RedirectStandardOutput = true,
+    RedirectStandardInput = true,
+    FileName = "/bin/bash",
+    Arguments = $"-c \"sudo systemctl restart v2ray.service\""
+};
+
+Process proc = new Process() { StartInfo = startInfo, };
+
+proc.Start();
+
 Console.ForegroundColor = ConsoleColor.Blue;
 
 Console.Out.Flush();
@@ -118,21 +132,6 @@ config?.inbounds[0]?.settings.Clients.Add(model);
 
 saveToConfig();
 
-//process manager restart systemctl v2ray.service
-//var startInfo = new ProcessStartInfo()
-//{
-//    CreateNoWindow = true,
-//    RedirectStandardError = true,
-//    RedirectStandardOutput = true,
-//    RedirectStandardInput = true,
-//    FileName = "/bin/bash",
-//    Arguments = $"-c \"sudo systemctl restart v2ray.service\""
-//};
-
-//Process proc = new Process() { StartInfo = startInfo, };
-
-//proc.Start();
-
 Console.Clear();
 
 foreach (var hostName in appConfig.HostNames)
@@ -181,7 +180,7 @@ if (data is null)
 
 input = Console.ReadLine();
 
-if (input.ToLower() !=  "y")
+if (input.ToLower() != "y")
 {
     Console.WriteLine("Operation canceled by user !\nPress a key to continue ...");
 
