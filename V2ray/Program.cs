@@ -95,6 +95,8 @@ Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t\t#####");
 
 Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####\n");
 
+Console.WriteLine("Press '0' for exit !");
+
 input = Console.ReadLine();
 
 Console.ForegroundColor = ConsoleColor.Green;
@@ -181,6 +183,8 @@ if (data is null)
     goto menu;
 }
 
+Console.WriteLine("Are you sure ? (y|n)");
+
 input = Console.ReadLine();
 
 if (input.ToLower() != "y")
@@ -209,6 +213,9 @@ goto menu;
 decide:
 switch (Convert.ToInt32(input))
 {
+    case 0:
+        return;
+
     case 1:
         goto updateConfig;
 
