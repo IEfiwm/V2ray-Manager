@@ -1,6 +1,7 @@
 ﻿
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using V2ray.Base;
 using V2ray.Model;
@@ -75,8 +76,9 @@ var startInfo = new ProcessStartInfo()
 };
 
 Process proc = new Process() { StartInfo = startInfo, };
-
+#if !DEBUG
 proc.Start();
+#endif
 
 Console.ForegroundColor = ConsoleColor.Blue;
 
@@ -84,11 +86,12 @@ Console.Out.Flush();
 
 Console.Clear();
 
-Console.WriteLine("=================== Hello Welcome to V2ray Manager ===================");
+Console.WriteLine("=================== (Hello Welcome to V2ray Manager) ===================");
+Console.WriteLine("Version: " + Assembly.GetExecutingAssembly().GetName().Version);
 
-Console.Write($"\n#####\t1. Get User  \t\t2. Get Users\t#####");
+Console.Write($"\n#####\t1. Get User  \t\t\t2. Get All Users\t#####");
 
-Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t#####");
+Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t\t#####");
 
 Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####\n");
 
