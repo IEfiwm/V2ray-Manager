@@ -5,18 +5,6 @@ using System.Text;
 using V2ray.Base;
 using V2ray.Model;
 
-string Base64Encode(string plainText)
-{
-    byte[] bytes = Encoding.UTF8.GetBytes(plainText);
-    return Convert.ToBase64String(bytes);
-}
-
-string Base64Decode(string base64EncodedData)
-{
-    byte[] bytes = Convert.FromBase64String(base64EncodedData);
-    return Encoding.UTF8.GetString(bytes);
-}
-
 string input = string.Empty;
 
 if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
@@ -32,21 +20,67 @@ catch (Exception e)
     File.WriteAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath, JsonConvert.SerializeObject(new Config()));
 }
 
+var appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
 
+#if DEBUG
+var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + "config.json"));
+#endif
+#if !DEBUG
+var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
+#endif
+
+if (config is null)
+{
+    Console.WriteLine("Error: V2ray not installed !");
+
+    return;
+}
+
+string Base64Encode(string plainText)
+{
+    byte[] bytes = Encoding.UTF8.GetBytes(plainText);
+    return Convert.ToBase64String(bytes);
+}
+
+string Base64Decode(string base64EncodedData)
+{
+    byte[] bytes = Convert.FromBase64String(base64EncodedData);
+    return Encoding.UTF8.GetString(bytes);
+}
+
+void saveToConfig()
+{
+#if DEBUG
+    using (StreamWriter file = File.CreateText(AppContext.BaseDirectory + "config.json"))
+#endif
+#if !DEBUG
+using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
+
+#endif
+    {
+        file.WriteLine(JsonConvert.SerializeObject(config, Formatting.Indented));
+    }
+}
 
 menu:
 
 Console.ForegroundColor = ConsoleColor.Blue;
 
+Console.Out.Flush();
+
+Console.Clear();
+
 Console.WriteLine("=================== Hello Welcome to V2ray Manager ===================");
 
-Console.Write($"\n#####\t1. Update Config  \t2. Get Users\t#####");
+Console.Write($"\n#####\t1. Get User  \t\t2. Get Users\t#####");
 
-Console.Write($"\n#####\t3. Create New User \t4. Delete User\t#####");
+Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t#####");
 
-Console.Write($"\n#####\t5. Manual Settings \t6. Delete User\t#####\n");
+Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####\n");
 
 input = Console.ReadLine();
+
+Console.ForegroundColor = ConsoleColor.Green;
 
 goto decide;
 
@@ -64,32 +98,42 @@ Console.Write("Type UserName: ");
 input = Console.ReadLine();
 
 var model = new Client();
-model.AlterId = 0;
-model.CreateDate = DateTime.Now.ToString("yyyy-MM-DD");
-model.Level = 0;
-model.Id = Guid.NewGuid().ToString();
-model.UserName = input;
+model.alterId = 0;
+model.createDate = DateTime.Now.ToString("yyyy-MM-dd");
+model.level = Convert.ToInt16(appConfig.Level);
+model.id = Guid.NewGuid().ToString();
+model.username = input;
 
+if ((bool)config.inbounds[0].settings.Clients.Any(m => m.username == input))
+{
+    Console.WriteLine("Error: Username is exist !\nPress a key to continue ...");
 
+    Console.ReadKey();
 
-var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
+    goto menu;
+}
 
 config?.inbounds[0]?.settings.Clients.Add(model);
 //convert to json and add to clients VPN config
 
-using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
-{
-    JsonSerializer serializer = new JsonSerializer();
-    serializer.Serialize(file, config);
-}
-
+saveToConfig();
 
 //process manager restart systemctl v2ray.service
-ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = "systemctl restart v2ray.service", };
-Process proc = new Process() { StartInfo = startInfo, };
-proc.Start();
+//var startInfo = new ProcessStartInfo()
+//{
+//    CreateNoWindow = true,
+//    RedirectStandardError = true,
+//    RedirectStandardOutput = true,
+//    RedirectStandardInput = true,
+//    FileName = "/bin/bash",
+//    Arguments = $"-c \"sudo systemctl restart v2ray.service\""
+//};
 
-var appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
+//Process proc = new Process() { StartInfo = startInfo, };
+
+//proc.Start();
+
+Console.Clear();
 
 foreach (var hostName in appConfig.HostNames)
 {//new user based on config
@@ -100,25 +144,64 @@ foreach (var hostName in appConfig.HostNames)
         Port = appConfig.Port,
         Net = appConfig.Net,
         Type = appConfig.Type,
-        Host = hostName,
-        Id = model.Id
+        Add = hostName,
+        Id = model.id,
+        Aid = "0",
+        V = appConfig.Level
     };
-    var userJson = JsonConvert.SerializeObject(user);
+    var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
 
     //print each one
-    Console.WriteLine("\n"+ "vmess://"+Base64Encode(userJson));
+    Console.WriteLine($"\nvmess://{Base64Encode(userJson)}\n");
 }
 
+Console.WriteLine("User created successfuly !\nPress a key to continue ...");
 
+Console.ReadLine();
 
-return;
-
+goto menu;
 
 deleteUser:
-return;
+Console.Clear();
+
+Console.WriteLine("Please enter Id or enter Username");
+
+input = Console.ReadLine();
+
+var data = config.inbounds[0].settings.Clients.Where(m => m.username == input || m.id == input).FirstOrDefault();
+
+if (data is null)
+{
+    Console.WriteLine("Error: Username is not exist !\nPress a key to continue ...");
+
+    Console.ReadKey();
+
+    goto menu;
+}
+
+input = Console.ReadLine();
+
+if (input.ToLower() !=  "y")
+{
+    Console.WriteLine("Operation canceled by user !\nPress a key to continue ...");
+
+    Console.ReadKey();
+
+    goto menu;
+}
+
+config.inbounds[0].settings.Clients.Remove(data);
+
+saveToConfig();
+
+Console.WriteLine("User deleted successfuly !\nPress a key to continue ...");
+
+Console.ReadKey();
+
+goto menu;
 
 manualSettings:
-return;
+goto menu;
 
 
 decide:
@@ -148,3 +231,25 @@ switch (Convert.ToInt32(input))
 
 
 Console.ReadKey();
+
+
+//using Newtonsoft.Json;
+//using V2ray.Model;
+
+
+
+//Console.WriteLine(JsonConvert.SerializeObject(new Config()
+//{
+//    HostNames = new List<string>()
+//    {
+//        "de.leastpng.pw",
+//        "auto.leastpng.pw"
+//    },
+//    Name = "Server DE",
+//    Net = "ws",
+//    Port = "25854",
+//    Type = "none",
+//    Level = "1"
+//}));
+
+//Console.ReadLine();

@@ -11,9 +11,25 @@
       "settings": {
         "clients": [
           {
-            "id": "744626c9-3a6a-4e38-a8d3-55bcb157fa55",
+            "id": "5d01b1a1-1753-43ae-927b-1e1e710d2801",
             "level": 1,
-            "alterId": 0
+            "alterId": 0,
+            "username": null,
+            "createDate": null
+          },
+          {
+            "id": "cf6b3817-27b2-44d2-a26f-af2c33ee82aa",
+            "level": 2,
+            "alterId": 0,
+            "username": null,
+            "createDate": null
+          },
+          {
+            "id": "4386d91d-12d5-4333-9cda-5e9e49aa60da",
+            "level": 1,
+            "alterId": 0,
+            "username": "3",
+            "createDate": "2022-10-07"
           }
         ]
       },

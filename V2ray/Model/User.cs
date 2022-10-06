@@ -14,7 +14,7 @@ namespace V2ray.Model
         public string Add { get; set; } = "";
 
         [JsonProperty("port")]
-        public int Port { get; set; } = 0;
+        public string Port { get; set; } = "";
 
         [JsonProperty("id")]
         public string Id { get; set; } = "";
