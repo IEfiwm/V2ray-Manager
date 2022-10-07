@@ -32,6 +32,7 @@ var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainCo
 
 if (config is null)
 {
+
     Console.WriteLine("Error: V2ray not installed !");
 
     return;
@@ -103,18 +104,106 @@ Console.ForegroundColor = ConsoleColor.Green;
 
 goto decide;
 
+getUser:
+
+Console.Clear();
+
+Console.WriteLine("Please enter Username or Id");
+
+input = Console.ReadLine();
+
+var mmodel = config?.inbounds[0]?.settings.Clients
+    .Where(m => m.id == input || m.username == input)
+    .FirstOrDefault();
+
+Console.Clear();
+
+foreach (var hostName in appConfig.HostNames)
+{//new user based on config
+
+    var user = new User
+    {
+        Ps = appConfig.Name,
+        Port = appConfig.Port,
+        Net = appConfig.Net,
+        Type = appConfig.Type,
+        Add = hostName,
+        Id = mmodel.id,
+        Aid = "0",
+        V = appConfig.Level
+    };
+    var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
+
+    //print each one
+    Console.WriteLine($"\nvmess://{Base64Encode(userJson)}\n");
+}
+
+Console.WriteLine("\nPress a key to continue ...");
+
+Console.ReadKey();
+
+goto menu;
 
 updateConfig:
 return;
 
 getUsers:
-return;
+
+Console.Clear();
+
+var users = config?.inbounds[0]?.settings.Clients
+    .ToList();
+
+foreach (var item in users)
+{
+    Console.WriteLine("========================================================");
+
+    Console.WriteLine($@"Id: {item.id}");
+
+    Console.WriteLine($@"Username: {item.username}");
+
+    Console.WriteLine($@"CreateDate: {item.createDate}");
+
+    foreach (var hostName in appConfig.HostNames)
+    {//new user based on config
+
+        var user = new User
+        {
+            Ps = appConfig.Name,
+            Port = appConfig.Port,
+            Net = appConfig.Net,
+            Type = appConfig.Type,
+            Add = hostName,
+            Id = item.id,
+            Aid = "0",
+            V = appConfig.Level
+        };
+        var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
+
+        //print each one
+        Console.WriteLine($"\nvmess://{Base64Encode(userJson)}\n");
+    }
+}
+Console.WriteLine("========================================================");
+
+Console.WriteLine($"\nAllUserCount: {users.Count}");
+
+Console.WriteLine("\nPress a key to continue ...");
+
+Console.ReadKey();
+
+goto menu;
 
 createNewUser:
 
 Console.Write("Type UserName: ");
 
 input = Console.ReadLine();
+
+if(input is null || string.IsNullOrEmpty(input))
+{
+    input = DateTime.Now.Ticks.ToString();
+}
 
 var model = new Client();
 model.alterId = 0;
@@ -217,7 +306,7 @@ switch (Convert.ToInt32(input))
         return;
 
     case 1:
-        goto updateConfig;
+        goto getUser;
 
     case 2:
         goto getUsers;
@@ -251,12 +340,12 @@ Console.ReadKey();
 //{
 //    HostNames = new List<string>()
 //    {
-//        "de.leastpng.pw",
+//        "sg.leastpng.pw",
 //        "auto.leastpng.pw"
 //    },
-//    Name = "Server DE",
+//    Name = "Server TR",
 //    Net = "ws",
-//    Port = "25854",
+//    Port = "48221",
 //    Type = "none",
 //    Level = "1"
 //}));
