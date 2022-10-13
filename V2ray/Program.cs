@@ -1,5 +1,4 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -8,20 +7,12 @@ using V2ray.Model;
 
 string input = string.Empty;
 
+var appConfig = new Config();
+
 if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
 {
     Directory.CreateDirectory(AppContext.BaseDirectory + MainConstants.FolderPath);
 }
-try
-{
-    var appConfiguration = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
-}
-catch (Exception e)
-{
-    File.WriteAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath, JsonConvert.SerializeObject(new Config()));
-}
-
-var appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
 
 #if DEBUG
 var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + "config.json"));
@@ -29,6 +20,11 @@ var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppCon
 #if !DEBUG
 var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
 #endif
+
+if (!File.Exists(AppContext.BaseDirectory + MainConstants.AppConfigPath))
+    goto manualSettings;
+
+appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
 
 if (config is null)
 {
@@ -200,7 +196,7 @@ Console.Write("Type UserName: ");
 
 input = Console.ReadLine();
 
-if(input is null || string.IsNullOrEmpty(input))
+if (input is null || string.IsNullOrEmpty(input))
 {
     input = DateTime.Now.Ticks.ToString();
 }
@@ -296,6 +292,58 @@ Console.ReadKey();
 goto menu;
 
 manualSettings:
+Console.Clear();
+
+appConfig = new Config();
+
+Console.WriteLine("Please enter server name");
+
+input = Console.ReadLine();
+
+appConfig.Name = input;
+
+Console.WriteLine("Please enter V2ray port");
+
+input = Console.ReadLine();
+
+appConfig.Port = input;
+
+Console.WriteLine("Please enter domain / hostname");
+Console.WriteLine("note: if you have more than one domain / hostname seperate them with ',' with no space. ");
+
+input = Console.ReadLine();
+
+appConfig.HostNames = new List<string>();
+
+foreach (var item in input.Split(","))
+{
+    appConfig.HostNames.Add(item.Trim());
+}
+
+Console.WriteLine("Please enter net");
+
+input = Console.ReadLine();
+
+appConfig.Net = input;
+
+Console.WriteLine("Please enter type");
+
+input = Console.ReadLine();
+
+appConfig.Type = input;
+
+Console.WriteLine("Please enter level");
+
+input = Console.ReadLine();
+
+appConfig.Level = input;
+
+File.WriteAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath, JsonConvert.SerializeObject(appConfig));
+
+Console.WriteLine("Config updated successfuly !\nPress a key to continue ...");
+
+Console.ReadLine();
+
 goto menu;
 
 
@@ -329,25 +377,3 @@ switch (Convert.ToInt32(input))
 
 
 Console.ReadKey();
-
-
-//using Newtonsoft.Json;
-//using V2ray.Model;
-
-
-
-//Console.WriteLine(JsonConvert.SerializeObject(new Config()
-//{
-//    HostNames = new List<string>()
-//    {
-//        "sg.leastpng.pw",
-//        "auto.leastpng.pw"
-//    },
-//    Name = "Server TR",
-//    Net = "ws",
-//    Port = "48221",
-//    Type = "none",
-//    Level = "1"
-//}));
-
-//Console.ReadLine();
