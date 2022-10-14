@@ -140,9 +140,6 @@ Console.ReadKey();
 
 goto menu;
 
-updateConfig:
-return;
-
 getUsers:
 
 Console.Clear();
@@ -364,6 +361,15 @@ Console.ReadLine();
 
 goto menu;
 
+updateConfig:
+appConfig.Port = config.inbounds[0].port.ToString();
+appConfig.Net = config.inbounds[0].streamSettings.network;
+appConfig.Level = config.inbounds[0].settings.Clients.First().level.ToString();
+Console.WriteLine("Config sync with V2ray Config successfuly !\nPress a key to continue ...");
+Console.ReadLine();
+
+goto menu;
+
 
 decide:
 switch (Convert.ToInt32(input))
@@ -387,7 +393,7 @@ switch (Convert.ToInt32(input))
         goto manualSettings;
 
     case 6:
-        goto deleteUser;
+        goto updateConfig;
 
     default:
         break;
