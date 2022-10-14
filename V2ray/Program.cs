@@ -192,7 +192,7 @@ goto menu;
 
 createNewUser:
 
-Console.Write("Type UserName: ");
+Console.Write("Please type Username: ");
 
 input = Console.ReadLine();
 
@@ -216,6 +216,24 @@ if ((bool)config.inbounds[0].settings.Clients.Any(m => m.username == input))
 
     goto menu;
 }
+
+Console.Write("How many days is this subscription? (defualt: -1)");
+
+input = Console.ReadLine();
+
+model.daysLimit = Convert.ToInt32(input);
+
+Console.Write("How many users is this subscription? (defualt: -1)");
+
+input = Console.ReadLine();
+
+model.deviceLimit = Convert.ToInt32(input);
+
+Console.Write("How much traffic does this subscription have? (defualt: -1)");
+
+input = Console.ReadLine();
+
+model.trafficLimit = Convert.ToInt32(input);
 
 config?.inbounds[0]?.settings.Clients.Add(model);
 //convert to json and add to clients VPN config

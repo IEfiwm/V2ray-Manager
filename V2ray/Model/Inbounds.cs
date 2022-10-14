@@ -101,5 +101,11 @@ namespace V2ray.Model
         public string username { get; set; }
 
         public string createDate { get; set; }
+
+        public int daysLimit { get; set; }
+
+        public int trafficLimit { get; set; }
+
+        public int deviceLimit { get; set; }
     }
 }
