@@ -229,17 +229,32 @@ Console.Write("How many days is this subscription? (defualt: -1)");
 
 input = Console.ReadLine();
 
+if (input is null || string.IsNullOrEmpty(input))
+{
+    input = "-1";
+}
+
 model.daysLimit = Convert.ToInt32(input);
 
 Console.Write("How many users is this subscription? (defualt: -1)");
 
 input = Console.ReadLine();
 
+if (input is null || string.IsNullOrEmpty(input))
+{
+    input = "-1";
+}
+
 model.deviceLimit = Convert.ToInt32(input);
 
 Console.Write("How much traffic does this subscription have? (defualt: -1)");
 
 input = Console.ReadLine();
+
+if (input is null || string.IsNullOrEmpty(input))
+{
+    input = "-1";
+}
 
 model.trafficLimit = Convert.ToInt32(input);
 
