@@ -189,6 +189,22 @@ goto menu;
 
 createNewUser:
 
+var model = new Client();
+model.alterId = 0;
+model.createDate = DateTime.Now.ToString("yyyy-MM-dd");
+model.level = Convert.ToInt16(appConfig.Level);
+
+Console.Write("Please type Id: (defual: NewUUid)");
+
+input = Console.ReadLine();
+
+if (input is null || string.IsNullOrEmpty(input))
+{
+    input = Guid.NewGuid().ToString();
+}
+
+model.id = input;
+
 Console.Write("Please type Username: ");
 
 input = Console.ReadLine();
@@ -198,11 +214,6 @@ if (input is null || string.IsNullOrEmpty(input))
     input = DateTime.Now.Ticks.ToString();
 }
 
-var model = new Client();
-model.alterId = 0;
-model.createDate = DateTime.Now.ToString("yyyy-MM-dd");
-model.level = Convert.ToInt16(appConfig.Level);
-model.id = Guid.NewGuid().ToString();
 model.username = input;
 
 if ((bool)config.inbounds[0].settings.Clients.Any(m => m.username == input))
