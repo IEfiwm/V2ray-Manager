@@ -98,9 +98,9 @@ Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t\t#####");
 
 Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####");
 
-Console.Write($"\n#####\t7. Create Backup \t\t8. Restore Backup\t#####\n");
+Console.Write($"\n#####\t7. Create Backup \t\t8. Restore Backup\t#####");
 
-Console.Write($"\n#####\t9. Install BBR \t\t10. Refresh System\t#####\n");
+Console.Write($"\n#####\t9. Install BBR \t\t\t10. Refresh System\t#####\n\n");
 
 Console.WriteLine("Press '0' for exit !");
 
