@@ -194,13 +194,31 @@ model.alterId = 0;
 model.createDate = DateTime.Now.ToString("yyyy-MM-dd");
 model.level = Convert.ToInt16(appConfig.Level);
 
-Console.Write("Please type Id: (defual: NewUUid)");
+Console.Write("Please type Id: (defualt: NewUUid)");
 
 input = Console.ReadLine();
 
 if (input is null || string.IsNullOrEmpty(input))
 {
     input = Guid.NewGuid().ToString();
+}
+
+if ((bool)config.inbounds[0].settings.Clients.Any(m => m.id == input))
+{
+    Console.WriteLine("Error: Id is exist !\nPress a key to continue ...");
+
+    Console.ReadKey();
+
+    goto menu;
+}
+
+if (!Guid.TryParse(input, out Guid res))
+{
+    Console.WriteLine("Error: Id is not valid !\nPress a key to continue ...");
+
+    Console.ReadKey();
+
+    goto menu;
 }
 
 model.id = input;
