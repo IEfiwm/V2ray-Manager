@@ -58,24 +58,29 @@ using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
     {
         file.WriteLine(JsonConvert.SerializeObject(config, Formatting.Indented));
     }
+
+    refreshSystem();
 }
 
-menu:
-
-var startInfo = new ProcessStartInfo()
+void refreshSystem()
 {
-    CreateNoWindow = true,
-    RedirectStandardError = true,
-    RedirectStandardOutput = true,
-    RedirectStandardInput = true,
-    FileName = "/bin/bash",
-    Arguments = $"-c \"sudo systemctl restart v2ray.service\""
-};
+    var startInfo = new ProcessStartInfo()
+    {
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        RedirectStandardInput = true,
+        FileName = "/bin/bash",
+        Arguments = $"-c \"sudo systemctl restart v2ray.service\""
+    };
 
-Process proc = new Process() { StartInfo = startInfo, };
+    Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
 proc.Start();
 #endif
+}
+
+menu:
 
 Console.ForegroundColor = ConsoleColor.Blue;
 
@@ -95,7 +100,7 @@ Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####");
 
 Console.Write($"\n#####\t7. Create Backup \t\t8. Restore Backup\t#####\n");
 
-//Console.Write($"\n#####\t9. Install BBR \t\t8. Restore Backup\t#####\n");
+Console.Write($"\n#####\t9. Install BBR \t\t10. Refresh System\t#####\n");
 
 Console.WriteLine("Press '0' for exit !");
 
@@ -459,6 +464,12 @@ switch (Convert.ToInt32(input))
     case 8:
         goto restoreBackup;
 
+    case 9:
+        goto installBBR;
+
+    case 10:
+        goto refreshSystem;
+
     default:
         goto decide;
 }
@@ -525,6 +536,28 @@ config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext
 saveToConfig();
 
 Console.WriteLine("Backup restored !\nPress a key to continue ...");
+
+Console.ReadLine();
+
+goto menu;
+
+refreshSystem:
+
+Console.Clear();
+
+refreshSystem();
+
+Console.WriteLine("System refreshed !\nPress a key to continue ...");
+
+Console.ReadLine();
+
+goto menu;
+
+installBBR:
+
+Console.Clear();
+
+Console.WriteLine("BBR install successfuly !\nPress a key to continue ...");
 
 Console.ReadLine();
 
