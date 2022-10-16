@@ -7,5 +7,7 @@
         public const string ConfgPath = "/etc/v2ray/config.json";
 
         public const string AppConfigPath = @$"{FolderPath}/config.json";
+
+        public const string BackupPath = @$"{FolderPath}/config.bk.json";
     }
 }

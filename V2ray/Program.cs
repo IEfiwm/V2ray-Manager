@@ -84,13 +84,18 @@ Console.Out.Flush();
 Console.Clear();
 
 Console.WriteLine("=================== (Hello Welcome to V2ray Manager) ===================");
+
 Console.WriteLine("Version: " + Assembly.GetExecutingAssembly().GetName().Version);
 
 Console.Write($"\n#####\t1. Get User  \t\t\t2. Get All Users\t#####");
 
 Console.Write($"\n#####\t3. Create New User \t\t4. Delete User\t\t#####");
 
-Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####\n");
+Console.Write($"\n#####\t5. Manual Settings \t\t6. Update Config\t#####");
+
+Console.Write($"\n#####\t7. Create Backup \t\t8. Restore Backup\t#####\n");
+
+//Console.Write($"\n#####\t9. Install BBR \t\t8. Restore Backup\t#####\n");
 
 Console.WriteLine("Press '0' for exit !");
 
@@ -157,6 +162,15 @@ foreach (var item in users)
 
     Console.WriteLine($@"CreateDate: {item.createDate}");
 
+    if (item.daysLimit > 0)
+        Console.WriteLine($@"ExpireDate: {DateTime.Parse(item.createDate).AddDays(item.daysLimit)}");
+
+    if (item.deviceLimit > 0)
+        Console.WriteLine($@"Device Limit: {item.deviceLimit}");
+
+    if (item.trafficLimit > 0)
+        Console.WriteLine($@"Traffic Limit: {item.trafficLimit}");
+
     foreach (var hostName in appConfig.HostNames)
     {//new user based on config
 
@@ -194,7 +208,7 @@ model.alterId = 0;
 model.createDate = DateTime.Now.ToString("yyyy-MM-dd");
 model.level = Convert.ToInt16(appConfig.Level);
 
-Console.Write("Please type Id: (defualt: NewUUid)");
+Console.Write("Please type Id: (defualt: NewUid)");
 
 input = Console.ReadLine();
 
@@ -223,7 +237,7 @@ if (!Guid.TryParse(input, out Guid res))
 
 model.id = input;
 
-Console.Write("Please type Username: ");
+Console.Write("Please type Username: (defualt: RndNumber)");
 
 input = Console.ReadLine();
 
@@ -439,9 +453,79 @@ switch (Convert.ToInt32(input))
     case 6:
         goto updateConfig;
 
+    case 7:
+        goto createBackup;
+
+    case 8:
+        goto restoreBackup;
+
     default:
-        break;
+        goto decide;
 }
 
+createBackup:
 
-Console.ReadKey();
+Console.Clear();
+
+Console.WriteLine("Are u sure ?! Do u want create backup point ? (default: n)");
+
+input = Console.ReadLine();
+
+if (input?.ToLowerInvariant() != "y")
+{
+    Console.WriteLine("Operation cancel by user !\nPress a key to continue ...");
+
+    Console.ReadLine();
+
+    goto menu;
+}
+
+if (File.Exists(AppContext.BaseDirectory + MainConstants.BackupPath))
+    File.Delete(AppContext.BaseDirectory + MainConstants.BackupPath);
+
+using (StreamWriter file = File.CreateText(AppContext.BaseDirectory + MainConstants.BackupPath))
+{
+    file.WriteLine(JsonConvert.SerializeObject(config, Formatting.Indented));
+}
+
+Console.WriteLine("Backup created !\nPress a key to continue ...");
+
+Console.ReadLine();
+
+goto menu;
+
+restoreBackup:
+
+Console.Clear();
+
+Console.WriteLine("Are u sure ?! Do u want restore V2ray Config from backup point ? (default: n)");
+
+input = Console.ReadLine();
+
+if (input?.ToLowerInvariant() != "y")
+{
+    Console.WriteLine("Operation cancel by user !\nPress a key to continue ...");
+
+    Console.ReadLine();
+
+    goto menu;
+}
+
+if (!File.Exists(AppContext.BaseDirectory + MainConstants.BackupPath))
+{
+    Console.WriteLine("Error: Backup file not exist !\nPress a key to continue ...");
+
+    Console.ReadLine();
+
+    goto menu;
+}
+
+config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.BackupPath));
+
+saveToConfig();
+
+Console.WriteLine("Backup restored !\nPress a key to continue ...");
+
+Console.ReadLine();
+
+goto menu;

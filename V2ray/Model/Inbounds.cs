@@ -98,14 +98,14 @@ namespace V2ray.Model
 
         public int alterId { get; set; }
 
-        public string username { get; set; }
+        public string username { get; set; } = Guid.NewGuid().ToString("N");
 
-        public string createDate { get; set; }
+        public string createDate { get; set; } = DateTime.Now.ToString();
 
-        public int daysLimit { get; set; }
+        public int daysLimit { get; set; } = -1;
 
-        public int trafficLimit { get; set; }
+        public int trafficLimit { get; set; } = -1;
 
-        public int deviceLimit { get; set; }
+        public int deviceLimit { get; set; } = -1;
     }
 }
