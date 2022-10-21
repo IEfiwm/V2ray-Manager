@@ -82,6 +82,15 @@ proc.Start();
 
 menu:
 
+foreach (var u in config.inbounds[0].settings.Clients
+    .Where(m => m.daysLimit > 0 && DateTime.Parse(m.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date)
+    .ToList())
+{
+    config.inbounds[0].settings.Clients.Remove(u);
+}
+
+saveToConfig();
+
 Console.ForegroundColor = ConsoleColor.Blue;
 
 Console.Out.Flush();
