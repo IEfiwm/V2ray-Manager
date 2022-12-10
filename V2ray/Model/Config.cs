@@ -13,5 +13,11 @@
         public string Net { get; set; }
 
         public string Level { get; set; }
+
+        public string Security { get; set; }
+
+        public string Path { get; set; }
+
+        public string Host { get; set; }
     }
 }

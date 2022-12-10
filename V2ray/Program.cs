@@ -28,7 +28,6 @@ appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.Ba
 
 if (config is null)
 {
-
     Console.WriteLine("Error: V2ray not installed !");
 
     return;
@@ -72,6 +71,42 @@ void refreshSystem()
         RedirectStandardInput = true,
         FileName = "/bin/bash",
         Arguments = $"-c \"sudo systemctl restart v2ray.service\""
+    };
+
+    Process proc = new Process() { StartInfo = startInfo, };
+#if !DEBUG
+proc.Start();
+#endif
+}
+
+void installV2ray()
+{
+    var startInfo = new ProcessStartInfo()
+    {
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        RedirectStandardInput = true,
+        FileName = "/bin/bash",
+        Arguments = $"-c \"sudo bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh)\""
+    };
+
+    Process proc = new Process() { StartInfo = startInfo, };
+#if !DEBUG
+proc.Start();
+#endif
+}
+
+void installGeo()
+{
+    var startInfo = new ProcessStartInfo()
+    {
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        RedirectStandardInput = true,
+        FileName = "/bin/bash",
+        Arguments = $"-c \"sudo bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh)\""
     };
 
     Process proc = new Process() { StartInfo = startInfo, };
@@ -133,6 +168,32 @@ var mmodel = config?.inbounds[0]?.settings.Clients
 
 Console.Clear();
 
+if (mmodel is null)
+{
+    Console.WriteLine("\nNo User found ! ...");
+
+    Console.ReadKey();
+
+    goto menu;
+}
+
+Console.WriteLine("========================================================");
+
+Console.WriteLine($@"Id: {mmodel.id}");
+
+Console.WriteLine($@"Username: {mmodel.username}");
+
+Console.WriteLine($@"CreateDate: {mmodel.createDate}");
+
+if (mmodel.daysLimit > 0)
+    Console.WriteLine($@"ExpireDate: {DateTime.Parse(mmodel.createDate).AddDays(mmodel.daysLimit)}");
+
+if (mmodel.deviceLimit > 0)
+    Console.WriteLine($@"Device Limit: {mmodel.deviceLimit}");
+
+if (mmodel.trafficLimit > 0)
+    Console.WriteLine($@"Traffic Limit: {mmodel.trafficLimit}");
+
 foreach (var hostName in appConfig.HostNames)
 {//new user based on config
 
@@ -145,7 +206,9 @@ foreach (var hostName in appConfig.HostNames)
         Add = hostName,
         Id = mmodel.id,
         Aid = "0",
-        V = appConfig.Level
+        V = appConfig.Level,
+        Host = appConfig.Host,
+        Path = appConfig.Path
     };
     var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
 
@@ -197,7 +260,9 @@ foreach (var item in users)
             Add = hostName,
             Id = item.id,
             Aid = "0",
-            V = appConfig.Level
+            V = appConfig.Level,
+            Host = appConfig.Host,
+            Path = appConfig.Path
         };
         var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
 
@@ -311,6 +376,23 @@ saveToConfig();
 
 Console.Clear();
 
+Console.WriteLine("========================================================");
+
+Console.WriteLine($@"Id: {model.id}");
+
+Console.WriteLine($@"Username: {model.username}");
+
+Console.WriteLine($@"CreateDate: {model.createDate}");
+
+if (model.daysLimit > 0)
+    Console.WriteLine($@"ExpireDate: {DateTime.Parse(model.createDate).AddDays(model.daysLimit)}");
+
+if (model.deviceLimit > 0)
+    Console.WriteLine($@"Device Limit: {model.deviceLimit}");
+
+if (model.trafficLimit > 0)
+    Console.WriteLine($@"Traffic Limit: {model.trafficLimit}");
+
 foreach (var hostName in appConfig.HostNames)
 {//new user based on config
 
@@ -323,7 +405,9 @@ foreach (var hostName in appConfig.HostNames)
         Add = hostName,
         Id = model.id,
         Aid = "0",
-        V = appConfig.Level
+        V = appConfig.Level,
+        Host = appConfig.Host,
+        Path = appConfig.Path
     };
     var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
 
@@ -425,6 +509,24 @@ input = Console.ReadLine();
 
 appConfig.Level = input;
 
+Console.WriteLine("Please enter security");
+
+input = Console.ReadLine();
+
+appConfig.Security = input;
+
+Console.WriteLine("Please enter host");
+
+input = Console.ReadLine();
+
+appConfig.Host = input;
+
+Console.WriteLine("Please enter path");
+
+input = Console.ReadLine();
+
+appConfig.Path = input;
+
 File.WriteAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath, JsonConvert.SerializeObject(appConfig));
 
 Console.WriteLine("Config updated successfuly !\nPress a key to continue ...");
@@ -444,6 +546,10 @@ goto menu;
 
 
 decide:
+
+if (string.IsNullOrEmpty(input))
+    goto menu;
+
 switch (Convert.ToInt32(input))
 {
     case 0:

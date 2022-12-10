@@ -2,25 +2,19 @@
 
 namespace V2ray.Model
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class ClientConfig
     {
-        public Log log { get; set; }
+        public dynamic log { get; set; }
 
         public List<Inbound> inbounds { get; set; }
 
-        public List<Outbound> outbounds { get; set; }
+        public dynamic outbounds { get; set; }
 
-        public Dns dns { get; set; }
+        public dynamic dns { get; set; }
 
-        public Routing routing { get; set; }
+        public dynamic routing { get; set; }
 
-        public Transport transport { get; set; }
-    }
-
-    public class Dns
-    {
-        public List<string> servers { get; set; }
+        public dynamic transport { get; set; }
     }
 
     public class Inbound
@@ -40,54 +34,6 @@ namespace V2ray.Model
     {
         [JsonProperty("clients")]
         public List<Client> Clients { get; set; }
-    }
-
-    public class KcpSettings
-    {
-        public int uplinkCapacity { get; set; }
-
-        public int downlinkCapacity { get; set; }
-
-        public bool congestion { get; set; }
-    }
-
-    public class Log
-    {
-        public string access { get; set; }
-
-        public string error { get; set; }
-
-        public string loglevel { get; set; }
-    }
-
-    public class Outbound
-    {
-        public string protocol { get; set; }
-
-        public dynamic settings { get; set; }
-
-        public string tag { get; set; }
-    }
-
-    public class Routing
-    {
-        public string domainStrategy { get; set; }
-
-        public List<dynamic> rules { get; set; }
-    }
-
-    public class Rule
-    {
-        public string type { get; set; }
-
-        public List<string> ip { get; set; }
-
-        public string outboundTag { get; set; }
-    }
-
-    public class Transport
-    {
-        public KcpSettings kcpSettings { get; set; }
     }
 
     public class Client
