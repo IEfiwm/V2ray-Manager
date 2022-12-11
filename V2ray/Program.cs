@@ -9,6 +9,8 @@ string input = string.Empty;
 
 var appConfig = new Config();
 
+createShortcut();
+
 if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
 {
     Directory.CreateDirectory(AppContext.BaseDirectory + MainConstants.FolderPath);
@@ -141,6 +143,24 @@ void installBBR()
         RedirectStandardInput = true,
         FileName = "/bin/bash",
         Arguments = $"-c \"sudo modprobe tcp_bbr;echo \"tcp_bbr\" >> /etc/modules-load.d/modules.conf;echo \"net.core.default_qdisc=fq\" >> /etc/sysctl.conf;echo \"net.ipv4.tcp_congestion_control=bbr\" >> /etc/sysctl.conf;sysctl -p\""
+    };
+
+    Process proc = new Process() { StartInfo = startInfo, };
+#if !DEBUG
+proc.Start();
+#endif
+}
+
+void createShortcut()
+{
+    var startInfo = new ProcessStartInfo()
+    {
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        RedirectStandardInput = true,
+        FileName = "/bin/bash",
+        Arguments = $"-c \"sudo alias v2ray-manager='./V2ray'\""
     };
 
     Process proc = new Process() { StartInfo = startInfo, };
