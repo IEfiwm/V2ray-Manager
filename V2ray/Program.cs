@@ -30,6 +30,10 @@ if (!File.Exists(MainConstants.ConfgPath))
 
     Console.WriteLine("\nPress any key to install V2ray ! ...");
 
+    Console.Out.Flush();
+
+    Console.Clear();
+
     Console.ReadKey();
 
     installV2ray();
