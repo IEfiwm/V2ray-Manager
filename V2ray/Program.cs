@@ -14,6 +14,29 @@ if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
     Directory.CreateDirectory(AppContext.BaseDirectory + MainConstants.FolderPath);
 }
 
+if (!File.Exists(MainConstants.ConfgPath))
+{
+    Console.Out.Flush();
+
+    Console.ForegroundColor = ConsoleColor.Red;
+
+    Console.Out.Flush();
+
+    Console.Clear();
+
+    Console.WriteLine("Error: V2ray not installed !");
+
+    Console.WriteLine("\nPress any key to install V2ray ! ...");
+
+    Console.ReadKey();
+
+    installV2ray();
+
+    installGeo();
+
+    return;
+}
+
 #if DEBUG
 var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + "config.json"));
 #endif
@@ -25,13 +48,6 @@ if (!File.Exists(AppContext.BaseDirectory + MainConstants.AppConfigPath))
     goto manualSettings;
 
 appConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath));
-
-if (config is null)
-{
-    Console.WriteLine("Error: V2ray not installed !");
-
-    return;
-}
 
 string Base64Encode(string plainText)
 {
@@ -107,6 +123,24 @@ void installGeo()
         RedirectStandardInput = true,
         FileName = "/bin/bash",
         Arguments = $"-c \"sudo bash <(curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh)\""
+    };
+
+    Process proc = new Process() { StartInfo = startInfo, };
+#if !DEBUG
+proc.Start();
+#endif
+}
+
+void installBBR()
+{
+    var startInfo = new ProcessStartInfo()
+    {
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        RedirectStandardInput = true,
+        FileName = "/bin/bash",
+        Arguments = $"-c \"sudo modprobe tcp_bbr;echo \"tcp_bbr\" >> /etc/modules-load.d/modules.conf;echo \"net.core.default_qdisc=fq\" >> /etc/sysctl.conf;echo \"net.ipv4.tcp_congestion_control=bbr\" >> /etc/sysctl.conf;sysctl -p\""
     };
 
     Process proc = new Process() { StartInfo = startInfo, };
@@ -675,5 +709,7 @@ Console.Clear();
 Console.WriteLine("BBR install successfuly !\nPress a key to continue ...");
 
 Console.ReadLine();
+
+installBBR();
 
 goto menu;
