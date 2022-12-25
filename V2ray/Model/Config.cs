@@ -16,6 +16,10 @@
 
         public string Security { get; set; }
 
+        public string Tls { get; set; }
+
+        public string Sni { get; set; }
+
         public string Path { get; set; }
 
         public string Host { get; set; }

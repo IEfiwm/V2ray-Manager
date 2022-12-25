@@ -4,7 +4,7 @@
     {
         public const string FolderPath = "/v2ray-manager";
 
-        public const string ConfgPath = "/usr/local/etc/v2ray/config.json";
+        public const string ConfgPath = "/usr/local/x-ui/bin/config.json";
 
         public const string AppConfigPath = @$"{FolderPath}/config.json";
 

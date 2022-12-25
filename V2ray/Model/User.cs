@@ -35,6 +35,9 @@ namespace V2ray.Model
         public string Path { get; set; } = "";
 
         [JsonProperty("tls")]
-        public string Tls { get; set; } = "";
+        public string Tls { get; set; } = "";       
+        
+        [JsonProperty("sni")]
+        public string Sni { get; set; } = "";
     }
 }

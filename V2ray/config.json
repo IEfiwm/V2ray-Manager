@@ -1,41 +1,582 @@
 ﻿{
-  "log": {
-    "access": "/var/log/v2ray/access.log",
-    "error": "/var/log/v2ray/error.log",
-    "loglevel": "warning"
+  "log": null,
+  "routing": {
+    "rules": [
+      {
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:private"
+        ],
+        "outboundTag": "blocked",
+        "type": "field"
+      },
+      {
+        "outboundTag": "blocked",
+        "protocol": [
+          "bittorrent"
+        ],
+        "type": "field"
+      }
+    ]
   },
+  "dns": null,
   "inbounds": [
     {
-      "port": 24297,
+      "listen": "127.0.0.1",
+      "port": 62789,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "streamSettings": null,
+      "tag": "api",
+      "sniffing": null
+    },
+    {
+      "listen": null,
+      "port": 11658,
       "protocol": "vmess",
       "settings": {
         "clients": [
           {
-            "id": "5d01b1a1-1753-43ae-927b-1e1e710d2801",
-            "level": 1,
-            "alterId": 0,
-            "username": null,
-            "createDate": null
-          },
-          {
-            "id": "cf6b3817-27b2-44d2-a26f-af2c33ee82aa",
-            "level": 2,
-            "alterId": 0,
-            "username": null,
-            "createDate": null
-          },
-          {
-            "id": "4386d91d-12d5-4333-9cda-5e9e49aa60da",
-            "level": 1,
-            "alterId": 0,
-            "username": "3",
-            "createDate": "2022-10-07"
+            "id": "a1b71dd8-6dda-4b75-99e0-6597a7a39c13",
+            "alterId": 0
           }
-        ]
+        ],
+        "disableInsecureEncryption": false
       },
       "streamSettings": {
-        "network": "ws"
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/graphql",
+          "headers": {}
+        }
       },
+      "tag": "inbound-11658",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 23913,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "c79099c8-fa59-4628-8799-448feced005f",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/myray",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-23913",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2022,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "941b8086-3317-494b-a7e3-29a1624d5676",
+            "flow": "xtls-rprx-direct"
+          }
+        ],
+        "decryption": "none",
+        "fallbacks": []
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/mmss",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2022",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2052,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "efc309bf-557d-41c6-90e9-e33a10a88b3c",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/graphql",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2052",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 443,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "4d58fa9b-97eb-477e-8974-76a4cdfa5409",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": true
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert/de.nitroping.xyz.cer",
+              "keyFile": "/root/cert/de.nitroping.xyz.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/matics",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-443",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2053,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "7abef716-7c65-49c4-b0bf-e62b5088c7a0",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/ray",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2053",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2054,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "e1501398-a715-4d8e-ffe9-6e34c8652a61",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/ray",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2054",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2055,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "90846dfe-950d-4d7c-a25c-676ec4b89ee7",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/trx",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2055",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2023,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "0dc7e0c4-c49e-4d9b-f82f-6de782382615",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/xwe",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2023",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 2025,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "e886fd5e-bbf4-4b96-dc08-1b4d3462a177",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/mygraphql",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-2025",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 38409,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "efcda160-5f54-4051-a60c-2d3835ad90db",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/rayy",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-38409",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 40754,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "1ce47628-eb0e-4e84-f332-5c5e335c0a0a",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/ytxw",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-40754",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 23001,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "eb44c35e-9a38-4518-bfd5-8cab214dbc9c",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/myserver",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-23001",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": null,
+      "port": 36835,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "02449048-b9d7-42d1-ea66-55ca9650f160",
+            "alterId": 0
+          }
+        ],
+        "disableInsecureEncryption": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "de.nitroping.xyz",
+          "certificates": [
+            {
+              "certificateFile": "/root/cert.crt",
+              "keyFile": "/root/private.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/trip",
+          "headers": {}
+        }
+      },
+      "tag": "inbound-36835",
       "sniffing": {
         "enabled": true,
         "destOverride": [
@@ -44,58 +585,34 @@
         ]
       }
     }
-    //include_ss
-    //include_socks
-    //include_mtproto
-    //include_in_config
-    //
   ],
   "outbounds": [
     {
       "protocol": "freedom",
-      "settings": {
-        "domainStrategy": "UseIP"
-      },
-      "tag": "direct"
+      "settings": {}
     },
     {
       "protocol": "blackhole",
       "settings": {},
       "tag": "blocked"
     }
-    //include_out_config
-    //
   ],
-  "dns": {
-    "servers": [
-      "https+local://dns.google/dns-query",
-      "8.8.8.8",
-      "1.1.1.1",
-      "localhost"
-    ]
-  },
-  "routing": {
-    "domainStrategy": "IPOnDemand",
-    "rules": [
-      {
-        "type": "field",
-        "ip": [
-          "geoip:private"
-        ],
-        "outboundTag": "blocked"
-      }
-      //include_ban_xx
-      //include_ban_bt
-      //include_ban_ad
-      //include_rules
-      //
-    ]
-  },
-  "transport": {
-    "kcpSettings": {
-      "uplinkCapacity": 100,
-      "downlinkCapacity": 100,
-      "congestion": true
+  "transport": null,
+  "policy": {
+    "system": {
+      "statsInboundDownlink": true,
+      "statsInboundUplink": true
     }
-  }
+  },
+  "api": {
+    "services": [
+      "HandlerService",
+      "LoggerService",
+      "StatsService"
+    ],
+    "tag": "api"
+  },
+  "stats": {},
+  "reverse": null,
+  "fakeDns": null
 }
