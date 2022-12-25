@@ -9,26 +9,14 @@ string input = string.Empty;
 
 var appConfig = new Config();
 
-//createShortcut();
-
-#if DEBUG
-var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + "config.json"));
-#endif
-#if !DEBUG
-var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
-#endif
+createShortcut();
 
 if (!Directory.Exists(AppContext.BaseDirectory + MainConstants.FolderPath))
 {
     Directory.CreateDirectory(AppContext.BaseDirectory + MainConstants.FolderPath);
 }
 
-#if DEBUG
-if (!File.Exists(AppContext.BaseDirectory + "config.json"))
-#endif
-#if !DEBUG
 if (!File.Exists(MainConstants.ConfgPath))
-#endif
 {
     Console.Out.Flush();
 
@@ -40,10 +28,27 @@ if (!File.Exists(MainConstants.ConfgPath))
 
     Console.WriteLine("Error: V2ray not installed !");
 
+    Console.WriteLine("\nPress any key to install V2ray ! ...");
+
+    Console.Out.Flush();
+
+    Console.Clear();
+
     Console.ReadKey();
+
+    installV2ray();
+
+    installGeo();
 
     return;
 }
+
+#if DEBUG
+var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(AppContext.BaseDirectory + "config.json"));
+#endif
+#if !DEBUG
+var config = JsonConvert.DeserializeObject<ClientConfig>(File.ReadAllText(MainConstants.ConfgPath));
+#endif
 
 if (!File.Exists(AppContext.BaseDirectory + MainConstants.AppConfigPath))
     goto manualSettings;
@@ -68,7 +73,7 @@ void saveToConfig()
     using (StreamWriter file = File.CreateText(AppContext.BaseDirectory + "config.json"))
 #endif
 #if !DEBUG
-    using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
+using (StreamWriter file = File.CreateText(MainConstants.ConfgPath))
 
 #endif
     {
@@ -87,12 +92,12 @@ void refreshSystem()
         RedirectStandardOutput = true,
         RedirectStandardInput = true,
         FileName = "/bin/bash",
-        Arguments = $"-c \"sudo systemctl restart x-ui.service\""
+        Arguments = $"-c \"sudo systemctl restart v2ray.service\""
     };
 
     Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
-    proc.Start();
+proc.Start();
 #endif
 }
 
@@ -110,7 +115,7 @@ void installV2ray()
 
     Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
-    proc.Start();
+proc.Start();
 #endif
 }
 
@@ -128,7 +133,7 @@ void installGeo()
 
     Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
-    proc.Start();
+proc.Start();
 #endif
 }
 
@@ -146,7 +151,7 @@ void installBBR()
 
     Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
-    proc.Start();
+proc.Start();
 #endif
 }
 
@@ -164,29 +169,20 @@ void createShortcut()
 
     Process proc = new Process() { StartInfo = startInfo, };
 #if !DEBUG
-    proc.Start();
+proc.Start();
 #endif
 }
 
 menu:
-int index = 0;
 
-//foreach (var inbound in config?.inbounds)
-//{
-//    if (inbound.settings?.Clients is not null)
-//    {
-//        var clients = inbound.settings?.Clients.Where(m => m.daysLimit <= 0 || m?.daysLimit > 0 && DateTime.Parse(m?.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date).ToList();
+foreach (var u in config.inbounds[0].settings.Clients
+    .Where(m => m.daysLimit > 0 && DateTime.Parse(m.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date)
+    .ToList())
+{
+    config.inbounds[0].settings.Clients.Remove(u);
+}
 
-//        foreach (var u in clients)
-//        {
-//            config.inbounds[index].settings.Clients.Remove(u);
-//        }
-//    }
-
-//    index++;
-//}
-
-//saveToConfig();
+saveToConfig();
 
 Console.ForegroundColor = ConsoleColor.Blue;
 
@@ -217,97 +213,81 @@ Console.ForegroundColor = ConsoleColor.Green;
 goto decide;
 
 getUser:
+
+Console.Clear();
+
+Console.WriteLine("Please enter Username or Id");
+
+input = Console.ReadLine();
+
+var mmodel = config?.inbounds[0]?.settings.Clients
+    .Where(m => m.id == input || m.username == input)
+    .FirstOrDefault();
+
+Console.Clear();
+
+if (mmodel is null)
 {
-    Console.Clear();
-
-    Console.WriteLine("Please enter Username or Id");
-
-    input = Console.ReadLine();
-
-    Client? mmodel = null;
-
-    foreach (var inbound in config?.inbounds)
-    {
-        mmodel = inbound.settings.Clients
-        .Where(m => m.id == input || m.username == input)
-        .FirstOrDefault();
-    }
-
-    Console.Clear();
-
-    if (mmodel is null)
-    {
-        Console.WriteLine("\nNo User found ! ...");
-
-        Console.ReadKey();
-
-        goto menu;
-    }
-
-    Console.WriteLine("========================================================");
-
-    Console.WriteLine($@"Id: {mmodel.id}");
-
-    Console.WriteLine($@"Username: {mmodel.username}");
-
-    Console.WriteLine($@"CreateDate: {mmodel.createDate}");
-
-    if (mmodel.daysLimit > 0)
-        Console.WriteLine($@"ExpireDate: {DateTime.Parse(mmodel.createDate).AddDays(mmodel.daysLimit)}");
-
-    if (mmodel.deviceLimit > 0)
-        Console.WriteLine($@"Device Limit: {mmodel.deviceLimit}");
-
-    if (mmodel.trafficLimit > 0)
-        Console.WriteLine($@"Traffic Limit: {mmodel.trafficLimit}");
-
-    foreach (var hostName in appConfig.HostNames)
-    {//new user based on config
-
-        var user = new User
-        {
-            Ps = appConfig.Name,
-            Port = appConfig.Port,
-            Net = appConfig.Net,
-            Type = appConfig.Type,
-            Add = hostName,
-            Id = mmodel.id,
-            Aid = "0",
-            V = appConfig.Level,
-            Host = appConfig.Host,
-            Path = appConfig.Path,
-            Sni = appConfig.Sni,
-            Tls = appConfig.Tls
-        };
-
-        var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
-
-        //print each one
-        Console.WriteLine($"\nvmess://{Base64Encode(userJson)}\n");
-    }
-
-    Console.WriteLine("\nPress a key to continue ...");
+    Console.WriteLine("\nNo User found ! ...");
 
     Console.ReadKey();
 
     goto menu;
 }
 
+Console.WriteLine("========================================================");
+
+Console.WriteLine($@"Id: {mmodel.id}");
+
+Console.WriteLine($@"Username: {mmodel.username}");
+
+Console.WriteLine($@"CreateDate: {mmodel.createDate}");
+
+if (mmodel.daysLimit > 0)
+    Console.WriteLine($@"ExpireDate: {DateTime.Parse(mmodel.createDate).AddDays(mmodel.daysLimit)}");
+
+if (mmodel.deviceLimit > 0)
+    Console.WriteLine($@"Device Limit: {mmodel.deviceLimit}");
+
+if (mmodel.trafficLimit > 0)
+    Console.WriteLine($@"Traffic Limit: {mmodel.trafficLimit}");
+
+foreach (var hostName in appConfig.HostNames)
+{//new user based on config
+
+    var user = new User
+    {
+        Ps = appConfig.Name,
+        Port = appConfig.Port,
+        Net = appConfig.Net,
+        Type = appConfig.Type,
+        Add = hostName,
+        Id = mmodel.id,
+        Aid = "0",
+        V = appConfig.Level,
+        Host = appConfig.Host,
+        Path = appConfig.Path,
+        Sni = appConfig.Sni,
+        Tls = appConfig.Tls
+    };
+    var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
+
+    //print each one
+    Console.WriteLine($"\nvmess://{Base64Encode(userJson)}\n");
+}
+
+Console.WriteLine("\nPress a key to continue ...");
+
+Console.ReadKey();
+
+goto menu;
+
 getUsers:
 
 Console.Clear();
 
-List<Client>? users = new List<Client>();
-
-for (int i = 0; i < config.inbounds.Count; i++)
-{
-    config?.inbounds[i]?.settings?.Clients?
-    .ToList()
-    .ForEach(m =>
-    {
-        users.Add(m);
-    });
-}
+var users = config?.inbounds[0]?.settings.Clients
+    .ToList();
 
 foreach (var item in users)
 {
@@ -343,8 +323,8 @@ foreach (var item in users)
             V = appConfig.Level,
             Host = appConfig.Host,
             Path = appConfig.Path,
-            Sni = appConfig.Sni,
-            Tls = appConfig.Tls
+            Tls = appConfig.Tls,
+            Sni = appConfig.Sni
         };
         var userJson = JsonConvert.SerializeObject(user, Formatting.Indented);
 
@@ -378,16 +358,13 @@ if (input is null || string.IsNullOrEmpty(input))
     input = Guid.NewGuid().ToString();
 }
 
-foreach (var inbound in config.inbounds)
+if ((bool)config.inbounds[0].settings.Clients.Any(m => m.id == input))
 {
-    if ((bool)inbound.settings.Clients.Any(m => m.id == input))
-    {
-        Console.WriteLine("Error: Id is exist !\nPress a key to continue ...");
+    Console.WriteLine("Error: Id is exist !\nPress a key to continue ...");
 
-        Console.ReadKey();
+    Console.ReadKey();
 
-        goto menu;
-    }
+    goto menu;
 }
 
 if (!Guid.TryParse(input, out Guid res))
@@ -412,16 +389,13 @@ if (input is null || string.IsNullOrEmpty(input))
 
 model.username = input;
 
-foreach (var inbound in config.inbounds)
+if ((bool)config.inbounds[0].settings.Clients.Any(m => m.username == input))
 {
-    if ((bool)inbound.settings.Clients.Any(m => m.username == input))
-    {
-        Console.WriteLine("Error: Username is exist !\nPress a key to continue ...");
+    Console.WriteLine("Error: Username is exist !\nPress a key to continue ...");
 
-        Console.ReadKey();
+    Console.ReadKey();
 
-        goto menu;
-    }
+    goto menu;
 }
 
 Console.Write("How many days is this subscription? (defualt: -1)");
@@ -456,17 +430,6 @@ if (input is null || string.IsNullOrEmpty(input))
 }
 
 model.trafficLimit = Convert.ToInt32(input);
-
-Console.Write("Which type of config do you need? \n1) VMess\t2) VLess");
-
-input = Console.ReadLine();
-
-if (input is null || string.IsNullOrEmpty(input))
-{
-    input = "1";
-}
-
-var configType = input;
 
 config?.inbounds[0]?.settings.Clients.Add(model);
 //convert to json and add to clients VPN config
@@ -529,15 +492,7 @@ Console.WriteLine("Please enter Id or enter Username");
 
 input = Console.ReadLine();
 
-Client? data = null;
-
-foreach (var inbound in config.inbounds)
-{
-    data = inbound.settings
-        .Clients
-        .Where(m => m.username == input || m.id == input)
-        .FirstOrDefault();
-}
+var data = config.inbounds[0].settings.Clients.Where(m => m.username == input || m.id == input).FirstOrDefault();
 
 if (data is null)
 {
@@ -561,13 +516,7 @@ if (input.ToLower() != "y")
     goto menu;
 }
 
-for (int i = 0; i < config.inbounds.Count; i++)
-{
-    foreach (var inbound in config?.inbounds)
-    {
-        config.inbounds[i].settings.Clients.Remove(data);
-    }
-}
+config.inbounds[0].settings.Clients.Remove(data);
 
 saveToConfig();
 
@@ -642,17 +591,17 @@ input = Console.ReadLine();
 
 appConfig.Path = input;
 
-Console.WriteLine("Please enter Tls");
-
-input = Console.ReadLine();
-
-appConfig.Tls = input;
-
 Console.WriteLine("Please enter Sni");
 
 input = Console.ReadLine();
 
 appConfig.Sni = input;
+
+Console.WriteLine("Please enter Tls");
+
+input = Console.ReadLine();
+
+appConfig.Tls = input;
 
 File.WriteAllText(AppContext.BaseDirectory + MainConstants.AppConfigPath, JsonConvert.SerializeObject(appConfig));
 
@@ -713,7 +662,7 @@ switch (Convert.ToInt32(input))
         goto refreshSystem;
 
     default:
-        goto decide;
+        goto menu;
 }
 
 createBackup:
