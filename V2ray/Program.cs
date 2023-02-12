@@ -174,15 +174,35 @@ proc.Start();
 }
 
 menu:
-
-foreach (var u in config.inbounds[0].settings.Clients
-    .Where(m => m.daysLimit > 0 && DateTime.Parse(m.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date)
-    .ToList())
 {
-    config.inbounds[0].settings.Clients.Remove(u);
-}
+    int index = 0;
 
-saveToConfig();
+    bool flag = false;
+
+    foreach (var inbound in config?.inbounds)
+    {
+        if (inbound.settings?.Clients is not null)
+        {
+            var clients = inbound.settings?.Clients.Where(m => m.daysLimit <= 0 || m?.daysLimit > 0 && DateTime.Parse(m?.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date).ToList();
+
+            foreach (var u in clients)
+            {
+                config.inbounds[index].settings.Clients.Remove(u);
+            }
+        }
+
+        index++;
+    }
+
+    if (flag)
+        saveToConfig();
+}
+//foreach (var u in config.inbounds[0].settings.Clients
+//    .Where(m => m.daysLimit > 0 && DateTime.Parse(m.createDate).AddDays(m.daysLimit).Date < DateTime.Now.Date)
+//    .ToList())
+//{
+//    config.inbounds[0].settings.Clients.Remove(u);
+//}
 
 Console.ForegroundColor = ConsoleColor.Blue;
 
